@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>test ting</title>
+    </head>
+    <body style="text-align:center">
+        <canvas width="800" height="600"></canvas>
+        <p>If this text is the only thing you see then you have to download the file!</p>
+        <script>
+            const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
+const baseHeight = canvas.height - 100;
+
+const noteRadius = 30;
+const noteSpacing = 5;
+const noteSpeed = 300;
+
+const fps = 60;
+
+const okHitThreshold = 0.25;
+const alrightHitThreshold = 0.2;
+const goodHitThreshold = 0.15;
+const greatHitThreshold = 0.1;
+const perfectHitThreshold = 0.05;
+
+let song = {
+    name: "test",
+    bpm: 180,
+    offset: 2,
+    keys: 4,
+    keybinds: [
+        "KeyD",
+        "KeyF",
+        "KeyJ",
+        "KeyK",
+    ],
+    notes: [
+        // beginning
+        
+        [0, 0],
+        [3, 0.5],
+        [1, 1],
+        [2, 1.5], [3, 1.5],
+        [2, 3],
+        [0, 3.25], [1, 3.25],
+        [2, 3.5],
+        [3, 4],
+        [2, 5],
+        [1, 5.5], [3, 5.5],
+        [0, 6.5], [3, 6.5],
+        [1, 7], [2, 7],
+        [3, 8],
+        [0, 9],
+        [1, 9.5],
+        [2, 10],
+        [3, 10.5],
+        [2, 11],
+        [0, 12],
+        [1, 12.25],
+        [0, 12.5],
+        [2, 13],
+        [0, 13.5],
+        [3, 14],
+        [1, 15], [3, 15],
+        [0, 15.5], [2, 15.5],
+        
+        // dense part
+        
+        [0, 16.5],
+        [3, 17],
+        [0, 17.5],
+        [3, 18],
+        [0, 18.5],
+        [1, 19],
+        [2, 19.25],
+        [3, 19.5],
+        [1, 19.75],
+        [3, 20],
+        [2, 20.5],
+        [3, 21],
+        [1, 21.5],
+        [0, 22], [2, 22],
+        [3, 23],
+        [2, 23.25],
+        [0, 23.5],
+        [1, 23.75],
+        [3, 24],
+        [2, 24.5],
+        [3, 25],
+        [2, 25.5],
+        [1, 26],
+        [0, 26.5],
+        [1, 27],
+        [2, 27.5],
+        [2, 28],
+        [0, 28.5],
+        [1, 29],
+        [3, 29.5],
+        [2, 30],
+        [0, 30.5],
+        [1, 31],
+        [2, 31.25],
+        [3, 31.5],
+        [2, 31.75],
+        
+        // bursty part
+        
+        [0, 32.5],
+        [0, 33],
+        [1, 33.5],
+        [0, 34],
+        [2, 34.5],
+        [3, 35],
+        [0, 36],
+        [1, 36.25],
+        [0, 36.5],
+        [1, 36.75],
+        [3, 37],
+        [3, 37.5],
+        [2, 38],
+        [1, 38.25],
+        [2, 38.5],
+        [3, 38.75],
+        [2, 39],
+        [0, 40.5],
+        [1, 41],
+        [3, 41.5],
+        [2, 42],
+        [2, 42.5],
+        [0, 43],
+        [0, 44],
+        [3, 45],
+        [2, 45.25],
+        [1, 45.5],
+        [0, 45.75],
+        [3, 46],
+        [2, 46.25],
+        [1, 46.5],
+        [2, 46.75],
+        [3, 47],
+        
+        // beginning again
+        
+        [0, 48], [1, 48],
+        [3, 48.5],
+        [2, 49],
+        [0, 49.5], [3, 49.5],
+        [3, 51],
+        [1, 51.25], [2, 51.25],
+        [0, 51.5],
+        [3, 52],
+        [1, 53], [2, 53],
+        [0, 53.5], [3, 53.5],
+        [0, 54.5], [2, 54.5],
+        [1, 55], [3, 55],
+        [0, 56],
+        [3, 57],
+        [2, 57.5],
+        [1, 58],
+        [0, 58.5],
+        [1, 59],
+        [3, 60],
+        [2, 60.25],
+        [3, 60.5],
+        [1, 61],
+        [0, 61.5],
+        [3, 62],
+        [0, 63], [1, 63],
+        [2, 63.5], [3, 63.5],
+        
+        // dense part again
+        
+        [3, 64.5],
+        [3, 65],
+        [2, 65.5],
+        [2, 66],
+        [1, 66.5],
+        [0, 67],
+        [1, 67.25],
+        [0, 67.5],
+        [2, 67.75],
+        [3, 68],
+        [3, 68.5],
+        [2, 69],
+        [3, 69.5],
+        [0, 70], [1, 70],
+        [2, 71],
+        [3, 71.25],
+        [2, 71.5],
+        [1, 71.75],
+        [0, 72],
+        [1, 72.5],
+        [0, 73],
+        [0, 73.5],
+        [1, 74],
+        [2, 74.5],
+        [2, 75],
+        [3, 75.5],
+        [2, 76],
+        [1, 76.5],
+        [0, 77],
+        [0, 77.5],
+        [1, 78],
+        [3, 78.5],
+        [0, 79],
+        [1, 79.25],
+        [2, 79.5],
+        [3, 79.75],
+        
+        // chords part before spam
+        
+        [0, 88], [1, 88],
+        [3, 88.5],
+        [0, 89], [2, 89],
+        [3, 89.5],
+        [1, 90], [2, 90],
+        [0, 90.5],
+        [1, 91], [3, 91],
+        [2, 91.5],
+        [0, 92], [1, 92],
+        [2, 92.5],
+        [0, 93], [3, 93],
+        [2, 93.5],
+        [1, 94], [3, 94],
+        [2, 94.5],
+        [0, 95], [3, 95],
+        [1, 95.5],
+        
+        [1, 104],
+        [0, 104.5], [3, 104.5],
+        [2, 105],
+        [1, 105.5], [3, 105.5],
+        [2, 106],
+        [0, 106.5], [3, 106.5],
+        [2, 107],
+        [0, 107.5], [1, 107.5],
+        [2, 108],
+        [1, 108.5], [3, 108.5],
+        [0, 109],
+        [1, 109.5], [2, 109.5],
+        [3, 110],
+        [0, 110.5], [2, 110.5],
+        [3, 111],
+        [0, 111.5], [1, 111.5],
+        
+        // spammy section
+        
+        [0, 112],
+        [1, 112.25],
+        [2, 112.5],
+        [1, 112.75],
+        [3, 113],
+        [2, 113.25],
+        [0, 113.5],
+        [1, 113.75],
+        [3, 114],
+        [2, 114.25],
+        [3, 114.5],
+        [0, 114.75],
+        [1, 115],
+        [0, 115.25],
+        [3, 115.5],
+        [2, 115.75],
+        
+        [0, 116],
+        [1, 116.25],
+        [2, 116.5],
+        [3, 116.75],
+        [2, 117],
+        [1, 117.25],
+        [0, 117.5],
+        [1, 117.75],
+        [3, 118],
+        [2, 118.25],
+        [0, 118.5],
+        [1, 118.75],
+        [3, 119],
+        [1, 119.25],
+        [2, 119.5],
+        [0, 119.75],
+        
+        [3, 120],
+        [0, 120.25],
+        [3, 120.5],
+        [0, 120.75],
+        [2, 121],
+        [0, 121.25],
+        [2, 121.5],
+        [0, 121.75],
+        [1, 122],
+        [3, 122.25],
+        [1, 122.5],
+        [2, 122.75],
+        [3, 123],
+        [2, 123.25],
+        [0, 123.5],
+        [1, 123.75],
+        
+        [3, 124],
+        [2, 124.25],
+        [1, 124.5],
+        [0, 124.75],
+        [3, 125],
+        [2, 125.25],
+        [1, 125.5],
+        [2, 125.75],
+        [3, 126],
+        [0, 126.25],
+        [1, 126.5],
+        [2, 126.75],
+        [3, 127],
+        [2, 127.25],
+        [3, 127.5],
+        [0, 127.75],
+        
+        [1, 128],
+        [2, 128.25],
+        [0, 128.5],
+        [1, 128.75],
+        [3, 129],
+        [2, 129.25],
+        [1, 129.5],
+        [3, 129.75],
+        [2, 130],
+        [0, 130.25],
+        [1, 130.5],
+        [2, 130.75],
+        [3, 131],
+        [2, 131.25],
+        [1, 131.5],
+        [0, 131.75],
+        
+        [3, 132],
+        [1, 132.25],
+        [3, 132.5],
+        [1, 132.75],
+        [2, 133],
+        [0, 133.25],
+        [2, 133.5],
+        [0, 133.75],
+        [3, 134],
+        [2, 134.25],
+        [1, 134.5],
+        [3, 134.75],
+        [2, 135],
+        [0, 135.25],
+        [1, 135.5],
+        [2, 135.75],
+        
+        [0, 136],
+        [0, 136.25],
+        [0, 136.5],
+        [0, 136.75],
+        [0, 137],
+        [0, 137.25],
+        [0, 137.5],
+        [0, 137.75],
+        [0, 138],
+        [0, 138.25],
+        [0, 138.5],
+        [0, 138.75],
+        [0, 139],
+        [0, 139.25],
+        [0, 139.5],
+        [0, 139.75],
+        
+        [0, 140],
+        [0, 140.25],
+        [0, 140.5],
+        [0, 140.75],
+        [0, 141],
+        [0, 141.25],
+        [0, 141.5],
+        [0, 141.75],
+        [0, 142],
+        [0, 142.25],
+        [0, 142.5],
+        [0, 142.75],
+        [0, 143],
+        [0, 143.25],
+        [0, 143.5],
+        [0, 143.75],
+    ],
+};
+
+const heldKeys = new Set();
+
+let running = true;
+let score = 0;
+let health = 50;
+let time = -song.offset * (song.bpm / 60);
+
+setInterval(main, 1000 / fps);
+
+function main() {
+    
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    for (let i = 0; i < song.keys; i++) {
+        ctx.fillStyle = heldKeys.has(song.keybinds[i]) ? "hsla(0 0% 100% / 75%)" : "hsla(0 0% 100% / 25%)";
+        const noteX = (canvas.width / 2) + i * ((noteRadius + noteSpacing) * 2) - (song.keys - 1) * (noteRadius + noteSpacing);
+        ctx.beginPath();
+        ctx.arc(
+            noteX,
+            baseHeight,
+            noteRadius,
+            0,
+            2 * Math.PI
+        );
+        ctx.fill();
+        
+        if (time < 0) {
+            ctx.save();
+            ctx.fillStyle = "hsla(0 0% 100% / 50%)";
+            ctx.font = "32px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(song.keybinds[i][3], noteX, baseHeight);
+            ctx.restore();
+        }
+    }
+    
+    ctx.fillStyle = "hsla(0 0% 100% / 50%)";
+    ctx.font = "64px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(score, canvas.width / 2, 150);
+    
+    // things here
+    
+    ctx.fillStyle = "skyblue";
+    for (let i = 0; i < song.notes.length; i++) {
+        const note = song.notes[i];
+        const noteColumn = note[0];
+        const noteTime = note[1];
+        const noteWidth = noteRadius + noteSpacing;
+        const noteX = (canvas.width / 2) + (2 * noteWidth * noteColumn) - noteWidth * (song.keys - 1);
+        ctx.beginPath();
+        ctx.arc(
+            noteX,
+            baseHeight - noteSpeed * (noteTime - time),
+            noteRadius,
+            0,
+            2 * Math.PI
+        );
+        ctx.fill();
+    }
+    
+    for (let i = 0; i < song.notes.length; i++) {
+        if (song.notes[i][1] - time < -1) {
+            song.notes.splice(i, 1);
+            health -= 20;
+        }
+    }
+    
+    if (health <= 0) {
+        running = false;
+        health = 0;
+    } else if (health > 100) {
+        health = 100;
+    }
+    
+    ctx.fillStyle = "red";
+    ctx.fillRect(canvas.width - 100, 100, 10, canvas.height - 200);
+    
+    ctx.fillStyle = "green";
+    ctx.fillRect(canvas.width - 100, canvas.height - 100, 10, -health / 100 * (canvas.height - 200));
+    
+    
+    
+    if (running) {
+        time += (1 / fps) * (song.bpm / 60);
+    } else {
+        ctx.fillStyle = "hsla(0 0% 100%)";
+        ctx.font = "86px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Dead", canvas.width / 2, canvas.height / 2);
+    }
+    
+}
+
+function findNote(column) {
+    
+    let index;
+    
+    for (let i = 0; i < song.notes.length; i++) {
+        if (song.notes[i][0] !== column) continue;
+        
+        if (index !== undefined) {
+            if (Math.abs(song.notes[i][1] - time) < Math.abs(song.notes[index][1] - time)) {
+                index = i;
+            }
+        } else {
+            index = i;
+        }
+    }
+    
+    return index;
+    
+}
+
+function hitNote(index) {
+    let noteTime = song.notes[index][1];
+    
+    let difference = Math.abs(noteTime - time);
+    
+    if (difference > okHitThreshold) return false;
+    
+    if (difference <= perfectHitThreshold) {
+        score += 50;
+        health += 5;
+    } else if (difference <= greatHitThreshold) {
+        score += 40;
+        health += 3;
+    } else if (difference <= goodHitThreshold) {
+        score += 30;
+        health += 2;
+    } else if (difference <= alrightHitThreshold) {
+        score += 20;
+        health += 1;
+    } else if (difference <= okHitThreshold) {
+        score += 10;
+    }
+    
+    song.notes.splice(index, 1);
+    
+    return true;
+}
+
+window.addEventListener("keydown", event => {
+    if (event.repeat || !running) return;
+    
+    const column = song.keybinds.indexOf(event.code);
+    
+    if (column === -1) return;
+    
+    heldKeys.add(event.code);
+
+    const index = findNote(column);
+    if (index !== undefined) {
+        if (hitNote(index)) return;
+    }
+    
+    health -= 10;
+});
+
+window.addEventListener("keyup", event => {
+    if (event.repeat || !running) return;
+    
+    const column = song.keybinds.indexOf(event.code);
+    
+    if (column === -1) return;
+    
+    heldKeys.delete(event.code);
+});
+
+        </script>
+    </body>
+</html>
